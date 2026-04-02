@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClientFlow SaaS Extended</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121933;
+      --panel-2: #182142;
+      --soft: #202a52;
+      --text: #eef2ff;
+      --muted: #aab4d6;
+      --primary: #7c5cff;
+      --primary-2: #50d4ff;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+      --radius: 22px;
+      --radius-sm: 14px;
+      --border: 1px solid rgba(255,255,255,0.08);
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: linear-gradient(180deg, #090d1a 0%, #101731 100%); color: var(--text); }
+    body { min-height: 100vh; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; text-decoration: none; }
+    .app { display: grid; grid-template-columns: 300px 1fr; min-height: 100vh; }
+    .sidebar { background: rgba(8, 12, 27, 0.82); backdrop-filter: blur(14px); border-right: var(--border); padding: 20px; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
+    .brand-mark { width: 50px; height: 50px; border-radius: 18px; display: grid; place-items: center; background: linear-gradient(135deg, var(--primary), var(--primary-2)); font-weight: 800; box-shadow: var(--shadow); overflow: hidden; }
+    .brand-mark img { width: 100%; height: 100%; object-fit: cover; }
+    .brand-copy h1 { margin: 0; font-size: 1.04rem; }
+    .brand-copy p { margin: 4px 0 0; color: var(--muted); font-size: 0.9rem; }
+    .nav { display: flex; flex-direction: column; gap: 10px; }
+    .nav button { text-align: left; padding: 14px 16px; border-radius: 16px; border: 1px solid transparent; background: transparent; color: var(--muted); transition: 0.2s ease; font-weight: 600; }
+    .nav button.active, .nav button:hover { background: rgba(124, 92, 255, 0.14); color: var(--text); border-color: rgba(124, 92, 255, 0.25); }
+    .sidebar-bottom { margin-top: 22px; padding: 16px; border-radius: var(--radius); background: linear-gradient(180deg, rgba(80, 212, 255, 0.12), rgba(124, 92, 255, 0.12)); border: var(--border); }
+    .main { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
+    .topbar { display: flex; gap: 14px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .topbar-left h2 { margin: 0; font-size: 1.6rem; }
+    .topbar-left p { margin: 6px 0 0; color: var(--muted); }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .pill, .ghost-btn, .primary-btn, .danger-btn, .success-btn { border: none; border-radius: 999px; padding: 12px 16px; font-weight: 700; }
+    .pill { background: var(--panel); color: var(--text); border: var(--border); }
+    .ghost-btn { background: rgba(255,255,255,0.05); color: var(--text); border: var(--border); }
+    .primary-btn { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white; box-shadow: var(--shadow); }
+    .danger-btn { background: rgba(239, 68, 68, 0.12); color: #fecaca; border: 1px solid rgba(239,68,68,0.24); }
+    .success-btn { background: rgba(34, 197, 94, 0.18); color: #d1fae5; border: 1px solid rgba(34,197,94,0.24); }
+    .section { display: none; gap: 20px; animation: fadeIn 0.22s ease; }
+    .section.active { display: grid; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .grid { display: grid; gap: 20px; }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .card { background: linear-gradient(180deg, rgba(18,25,51,0.94), rgba(15,22,46,0.94)); border: var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; }
+    .card h3, .card h4 { margin-top: 0; }
+    .metric { display: flex; flex-direction: column; gap: 10px; }
+    .metric .label { color: var(--muted); font-size: 0.94rem; }
+    .metric .value { font-size: 2rem; font-weight: 800; }
+    .metric .delta { color: var(--primary-2); font-size: 0.92rem; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+    .field label { color: var(--muted); font-size: 0.95rem; font-weight: 600; }
+    .field input, .field select, .field textarea { border: var(--border); background: rgba(255,255,255,0.04); color: var(--text); border-radius: 14px; padding: 13px 14px; outline: none; width: 100%; }
+    .field textarea { min-height: 110px; resize: vertical; }
+    .table-wrap { overflow-x: auto; border-radius: 18px; }
+    table { width: 100%; border-collapse: collapse; min-width: 720px; }
+    th, td { text-align: left; padding: 14px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    th { color: var(--muted); font-size: 0.9rem; font-weight: 700; }
+    .status { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 999px; font-size: 0.86rem; font-weight: 800; }
+    .status.pending { background: rgba(245, 158, 11, 0.14); color: #fcd34d; }
+    .status.onhold { background: rgba(239, 68, 68, 0.14); color: #fca5a5; }
+    .status.finished { background: rgba(34, 197, 94, 0.14); color: #86efac; }
+    .status.paid { background: rgba(34, 197, 94, 0.14); color: #86efac; }
+    .status.unpaid { background: rgba(245, 158, 11, 0.14); color: #fcd34d; }
+    .status.overdue { background: rgba(239, 68, 68, 0.14); color: #fca5a5; }
+    .task-card, .client-card, .platform-card, .portal-card, .invoice-preview { border-radius: 18px; padding: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .task-card h4, .client-card h4, .platform-card h4, .portal-card h4 { margin: 0 0 8px; font-size: 1rem; }
+    .muted { color: var(--muted); }
+    .small { font-size: 0.9rem; }
+    .calendar { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 10px; }
+    .calendar .day-name, .calendar .day-cell { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 12px; min-height: 92px; }
+    .calendar .day-name { min-height: auto; text-align: center; font-weight: 700; color: var(--muted); }
+    .calendar .day-cell.today { outline: 2px solid rgba(80, 212, 255, 0.5); }
+    .calendar .day-cell.has-task { background: linear-gradient(180deg, rgba(124,92,255,0.15), rgba(80,212,255,0.08)); }
+    .day-num { font-weight: 800; margin-bottom: 8px; }
+    .day-task-dot { display: inline-block; width: 8px; height: 8px; border-radius: 999px; background: var(--primary-2); margin-right: 6px; }
+    .platform-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 14px; }
+    .platform-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .chip-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    .chip { border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: var(--text); padding: 10px 14px; border-radius: 999px; font-weight: 700; }
+    .chip.active { background: linear-gradient(135deg, rgba(124,92,255,0.24), rgba(80,212,255,0.20)); border-color: rgba(80,212,255,0.38); }
+    .check-list { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+    .check-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 12px; display: flex; align-items: center; gap: 10px; }
+    .poster-preview-wrap { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
+    #availabilityCanvas { width: 100%; max-width: 360px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); background: white; }
+    .portal-frame { width: 100%; min-height: 640px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.08); background: #fff; }
+    .flex { display: flex; gap: 12px; flex-wrap: wrap; }
+    .space-top { margin-top: 12px; }
+    .space-bottom { margin-bottom: 12px; }
+    .mobile-header { display: none; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .mobile-menu { display: none; width: 44px; height: 44px; border-radius: 14px; border: var(--border); background: rgba(255,255,255,0.04); color: var(--text); }
+    .empty-state { padding: 18px; border-radius: 18px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.12); color: var(--muted); text-align: center; }
+    .invoice-sheet { background: #fff; color: #111827; border-radius: 24px; padding: 28px; max-width: 850px; margin: 0 auto; }
+    .invoice-sheet h2, .invoice-sheet h3, .invoice-sheet p { color: #111827; }
+    .invoice-sheet .muted-dark { color: #6b7280; }
+    .invoice-sheet table { min-width: auto; }
+    .invoice-sheet th, .invoice-sheet td { border-bottom: 1px solid #e5e7eb; color: #111827; }
+    .automation-item { border-radius: 16px; padding: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+    @media (max-width: 1180px) { .grid-4, .grid-3, .grid-2, .platform-grid, .poster-preview-wrap { grid-template-columns: 1fr; } }
+    @media (max-width: 860px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: fixed; z-index: 30; left: 0; top: 0; bottom: 0; transform: translateX(-100%); transition: 0.24s ease; width: 86vw; max-width: 340px; }
+      .sidebar.open { transform: translateX(0); }
+      .mobile-header, .mobile-menu { display: flex; }
+      .form-grid, .check-list { grid-template-columns: 1fr; }
+      .calendar { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .calendar .day-name { display: none; }
+      .topbar { align-items: stretch; }
+      .toolbar { width: 100%; }
+      .toolbar > * { flex: 1 1 auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark" id="brandMark">CF</div>
+        <div class="brand-copy">
+          <h1>ClientFlow SaaS</h1>
+          <p id="sidebarTagline">CRM + task manager + automation suite</p>
+        </div>
+      </div>
+      <nav class="nav" id="nav"></nav>
+      <div class="sidebar-bottom">
+        <strong id="quickTipsTitle">Suite completă</strong>
+        <p class="muted small" id="quickTipsText">Automatizări, push reminder, template-uri, timetracking, portal client, facturare, export PDF și PNG în aceeași interfață.</p>
+      </div>
+    </aside>
+    <main class="main">
+      <div class="mobile-header">
+        <div class="brand">
+          <div class="brand-mark" id="brandMarkMobile">CF</div>
+          <div class="brand-copy">
+            <h1>ClientFlow</h1>
+            <p>Mobile-first SaaS</p>
+          </div>
+        </div>
+        <button class="mobile-menu" id="mobileMenu">☰</button>
+      </div>
+      <header class="topbar">
+        <div class="topbar-left">
+          <h2 id="pageTitle">Control complet pentru clienți și task-uri</h2>
+          <p id="pageSubtitle">Organizare simplă, vizuală și rapidă, optimizată pentru mobil.</p>
+        </div>
+        <div class="toolbar">
+          <button class="pill" id="languageBtn">RO / EN</button>
+          <button class="ghost-btn" id="seedBtn">Demo data</button>
+          <button class="danger-btn" id="resetBtn">Reset</button>
+        </div>
+      </header>
+      <section class="section active" id="dashboardSection"></section>
+      <section class="section" id="clientsSection"></section>
+      <section class="section" id="tasksSection"></section>
+      <section class="section" id="calendarSection"></section>
+      <section class="section" id="contentSection"></section>
+      <section class="section" id="posterSection"></section>
+      <section class="section" id="templatesSection"></section>
+      <section class="section" id="automationSection"></section>
+      <section class="section" id="timeSection"></section>
+      <section class="section" id="invoiceSection"></section>
+      <section class="section" id="portalSection"></section>
+    </main>
+  </div>
+
+  <script>
+    const appState = {
+      language: localStorage.getItem('cf_language') || 'ro',
+      currentSection: 'dashboard',
+      selectedTone: 'professional',
+      advanced: { emoji: true, cta: true, hashtags: true },
+      platformOutputs: {},
+      clients: JSON.parse(localStorage.getItem('cf_clients') || '[]'),
+      tasks: JSON.parse(localStorage.getItem('cf_tasks') || '[]'),
+      logo: JSON.parse(localStorage.getItem('cf_logo') || '{"name":"ClientFlow","primary":"#7c5cff","secondary":"#50d4ff","image":""}'),
+      serviceTemplates: JSON.parse(localStorage.getItem('cf_service_templates') || '[]'),
+      reminders: JSON.parse(localStorage.getItem('cf_reminders') || '[]'),
+      timeEntries: JSON.parse(localStorage.getItem('cf_time_entries') || '[]'),
+      invoices: JSON.parse(localStorage.getItem('cf_invoices') || '[]'),
+      clientPortalLinks: JSON.parse(localStorage.getItem('cf_portal_links') || '[]')
+    };
+
+    const translations = {
+      ro: {
+        appTitle: 'Control complet pentru clienți și task-uri',
+        appSubtitle: 'Organizare simplă, vizuală și rapidă, optimizată pentru mobil.',
+        tagline: 'CRM + task manager + automation suite',
+        ideasTitle: 'Suite completă',
+        ideasText: 'Automatizări, push reminder, template-uri, timetracking, portal client, facturare, export PDF și PNG în aceeași interfață.',
+        nav: {
+          dashboard: 'Dashboard', clients: 'Clienți', tasks: 'Task-uri', calendar: 'Calendar', content: 'Adaptare text', poster: 'Generator disponibilitate', templates: 'Template-uri servicii', automation: 'Reminder & automatizări', time: 'Time tracking', invoice: 'Facturare', portal: 'Portal client'
+        },
+        dashboard: { title: 'Privire de ansamblu', metrics: ['Clienți activi', 'Task-uri totale', 'Reminder-e', 'Facturi'], quick: 'Task-uri urgente', clients: 'Ultimii clienți', empty: 'Nu există date încă. Apasă pe “Demo data” sau adaugă manual date.' },
+        clients: { title: 'Administrare clienți', addTitle: 'Adaugă client', name: 'Nume client', company: 'Companie', phone: 'Telefon', email: 'Email', service: 'Serviciu', notes: 'Notițe', addBtn: 'Salvează client', listTitle: 'Listă clienți', empty: 'Nu ai adăugat niciun client.' },
+        tasks: { title: 'Task-uri și termene', addTitle: 'Adaugă task', taskName: 'Titlu task', client: 'Client', start: 'Data start', end: 'Data final', due: 'Deadline', status: 'Stadiu', priority: 'Prioritate', details: 'Detalii', addBtn: 'Salvează task', tableTitle: 'Toate task-urile', statuses: { pending: 'Pending', onhold: 'On hold', finished: 'Finished' }, priorities: { low: 'Mică', medium: 'Medie', high: 'Mare' }, empty: 'Nu există task-uri încă.' },
+        calendar: { title: 'Calendar task-uri', subtitle: 'Vezi deadline-urile și intervalele de realizare.', monthNames: ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'], days: ['Lun','Mar','Mie','Joi','Vin','Sâm','Dum'] },
+        content: { title: 'Adaptare Text', subtitle: 'Rescrie conținut pentru fiecare platformă și ton de voce.', original: 'Text original', tone: 'Ton de voce', advanced: 'Opțiuni avansate', generate: 'Generează variante', tones: { professional: '💼 Profesional', casual: '😎 Casual', funny: '😂 Amuzant', inspirational: '✨ Inspirațional', urgent: '🔥 Urgent', storytelling: '📖 Storytelling', educational: '🎓 Educativ', provocative: '💥 Provocator' }, options: { emoji: 'Adaugă emoji-uri', cta: 'Adaugă CTA la final', hashtags: 'Include hashtag-uri' }, hashtagTitle: 'Generator hashtag-uri', captionTitle: 'Caption Writer', captionSubtitle: 'Generează captions creative + tip', ctaTitle: 'CTA + Hook Generator', product: 'Produs / Serviciu', desiredAction: 'Acțiune dorită', outputs: { instagram: 'Instagram', tiktok: 'TikTok', twitter: 'X/Twitter', linkedin: 'LinkedIn', facebook: 'Facebook' } },
+        poster: { title: 'Generator imagine program disponibil', subtitle: 'Clientul poate încărca logo, iar imaginea preia culorile brandului și permite export PNG/PDF.', logoName: 'Nume brand / logo text', primary: 'Culoare primară', secondary: 'Culoare secundară', schedule: 'Program disponibil', contact: 'Contact', regenerate: 'Generează imagine', download: 'Descarcă PNG', downloadPdf: 'Export PDF', upload: 'Încarcă logo' },
+        templates: { title: 'Template-uri servicii', add: 'Adaugă template', name: 'Nume template', price: 'Preț', deliverables: 'Livrabile', duration: 'Durată', list: 'Template-uri salvate' },
+        automation: { title: 'Reminder Center & automatizări', add: 'Adaugă reminder', name: 'Titlu reminder', type: 'Tip', date: 'Dată', preset: 'Automatizări presetate', presetBtn: 'Activează presetări' },
+        time: { title: 'Time tracking', add: 'Adaugă timp lucrat', hours: 'Ore', description: 'Descriere', total: 'Total ore' },
+        invoice: { title: 'Facturare', create: 'Generează factură', number: 'Număr factură', issue: 'Data emiterii', due: 'Scadență', amount: 'Suma', status: 'Status', list: 'Facturi create', exportPdf: 'Export PDF factură' },
+        portal: { title: 'Portal client', create: 'Generează link public/simulat', url: 'Link portal', preview: 'Preview portal' },
+        common: { delete: 'Șterge', save: 'Salvează', empty: 'Nicio înregistrare', priorityScore: 'Scor prioritate', interval: 'Interval', downloadPdf: 'Export PDF' }
+      },
+      en: {
+        appTitle: 'Complete control for clients and tasks',
+        appSubtitle: 'Fast, visual organization built mobile-first.',
+        tagline: 'CRM + task manager + automation suite',
+        ideasTitle: 'Complete suite',
+        ideasText: 'Automations, push reminders, templates, time tracking, client portal, invoicing, PDF and PNG export in the same interface.',
+        nav: {
+          dashboard: 'Dashboard', clients: 'Clients', tasks: 'Tasks', calendar: 'Calendar', content: 'Text adaptation', poster: 'Availability generator', templates: 'Service templates', automation: 'Reminders & automations', time: 'Time tracking', invoice: 'Invoicing', portal: 'Client portal'
+        },
+        dashboard: { title: 'Overview', metrics: ['Active clients', 'Total tasks', 'Reminders', 'Invoices'], quick: 'Urgent tasks', clients: 'Latest clients', empty: 'No data yet. Click “Demo data” or add data manually.' },
+        clients: { title: 'Client management', addTitle: 'Add client', name: 'Client name', company: 'Company', phone: 'Phone', email: 'Email', service: 'Service', notes: 'Notes', addBtn: 'Save client', listTitle: 'Client list', empty: 'No clients added yet.' },
+        tasks: { title: 'Tasks and deadlines', addTitle: 'Add task', taskName: 'Task title', client: 'Client', start: 'Start date', end: 'End date', due: 'Deadline', status: 'Status', priority: 'Priority', details: 'Details', addBtn: 'Save task', tableTitle: 'All tasks', statuses: { pending: 'Pending', onhold: 'On hold', finished: 'Finished' }, priorities: { low: 'Low', medium: 'Medium', high: 'High' }, empty: 'No tasks yet.' },
+        calendar: { title: 'Task calendar', subtitle: 'See deadlines and working intervals.', monthNames: ['January','February','March','April','May','June','July','August','September','October','November','December'], days: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] },
+        content: { title: 'Text Adaptation', subtitle: 'Rewrite content for each platform and tone of voice.', original: 'Original text', tone: 'Tone of voice', advanced: 'Advanced options', generate: 'Generate variants', tones: { professional: '💼 Professional', casual: '😎 Casual', funny: '😂 Funny', inspirational: '✨ Inspirational', urgent: '🔥 Urgent', storytelling: '📖 Storytelling', educational: '🎓 Educational', provocative: '💥 Provocative' }, options: { emoji: 'Add emojis', cta: 'Add CTA at the end', hashtags: 'Include hashtags' }, hashtagTitle: 'Hashtag generator', captionTitle: 'Caption Writer', captionSubtitle: 'Generate creative captions + type', ctaTitle: 'CTA + Hook Generator', product: 'Product / Service', desiredAction: 'Desired action', outputs: { instagram: 'Instagram', tiktok: 'TikTok', twitter: 'X/Twitter', linkedin: 'LinkedIn', facebook: 'Facebook' } },
+        poster: { title: 'Availability image generator', subtitle: 'Client can upload a logo, and the image keeps brand colors with PNG/PDF export.', logoName: 'Brand / logo text', primary: 'Primary color', secondary: 'Secondary color', schedule: 'Availability schedule', contact: 'Contact', regenerate: 'Generate image', download: 'Download PNG', downloadPdf: 'Export PDF', upload: 'Upload logo' },
+        templates: { title: 'Service templates', add: 'Add template', name: 'Template name', price: 'Price', deliverables: 'Deliverables', duration: 'Duration', list: 'Saved templates' },
+        automation: { title: 'Reminder Center & automations', add: 'Add reminder', name: 'Reminder title', type: 'Type', date: 'Date', preset: 'Preset automations', presetBtn: 'Enable presets' },
+        time: { title: 'Time tracking', add: 'Add time entry', hours: 'Hours', description: 'Description', total: 'Total hours' },
+        invoice: { title: 'Invoicing', create: 'Generate invoice', number: 'Invoice number', issue: 'Issue date', due: 'Due date', amount: 'Amount', status: 'Status', list: 'Created invoices', exportPdf: 'Export invoice PDF' },
+        portal: { title: 'Client portal', create: 'Generate public/simulated link', url: 'Portal link', preview: 'Portal preview' },
+        common: { delete: 'Delete', save: 'Save', empty: 'No records', priorityScore: 'Priority score', interval: 'Interval', downloadPdf: 'Export PDF' }
+      }
+    };
+
+    const sections = ['dashboard','clients','tasks','calendar','content','poster','templates','automation','time','invoice','portal'];
+    const platformLimits = { instagram: 2200, tiktok: 2200, twitter: 280, linkedin: 3000, facebook: 63206 };
+    function t(path) { const parts = path.split('.'); let current = translations[appState.language]; for (const part of parts) current = current?.[part]; return current ?? path; }
+    function saveState() {
+      localStorage.setItem('cf_language', appState.language);
+      localStorage.setItem('cf_clients', JSON.stringify(appState.clients));
+      localStorage.setItem('cf_tasks', JSON.stringify(appState.tasks));
+      localStorage.setItem('cf_logo', JSON.stringify(appState.logo));
+      localStorage.setItem('cf_service_templates', JSON.stringify(appState.serviceTemplates));
+      localStorage.setItem('cf_reminders', JSON.stringify(appState.reminders));
+      localStorage.setItem('cf_time_entries', JSON.stringify(appState.timeEntries));
+      localStorage.setItem('cf_invoices', JSON.stringify(appState.invoices));
+      localStorage.setItem('cf_portal_links', JSON.stringify(appState.clientPortalLinks));
+    }
+    function scoreTask(task) {
+      const priorityWeight = { low: 1, medium: 2, high: 3 };
+      const statusPenalty = task.status === 'finished' ? 0 : task.status === 'onhold' ? 1 : 2;
+      const now = new Date();
+      const due = task.dueDate ? new Date(task.dueDate) : now;
+      const diff = Math.ceil((due - now) / (1000 * 60 * 60 * 24));
+      const urgency = diff <= 0 ? 4 : diff <= 2 ? 3 : diff <= 5 ? 2 : 1;
+      return (priorityWeight[task.priority] || 1) + statusPenalty + urgency;
+    }
+    function seedDemoData() {
+      appState.clients = [
+        { id: crypto.randomUUID(), name: 'Ana Popescu', company: 'Bloom Studio', phone: '+40 722 111 333', email: 'ana@bloomstudio.ro', service: 'Social media management', notes: 'Preferă update săptămânal.' },
+        { id: crypto.randomUUID(), name: 'Mark Evans', company: 'Northside Dental', phone: '+44 555 231 101', email: 'mark@northside.com', service: 'Content + ads', notes: 'Needs English-first content.' },
+        { id: crypto.randomUUID(), name: 'Daria Ionescu', company: 'Luna Beauty', phone: '+40 741 000 999', email: 'hello@lunabeauty.ro', service: 'Branding', notes: 'Launch campaign this month.' }
+      ];
+      const today = new Date();
+      const addDays = (d) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + d).toISOString().split('T')[0];
+      appState.tasks = [
+        { id: crypto.randomUUID(), title: 'Landing page revizie', clientId: appState.clients[0].id, startDate: addDays(-1), endDate: addDays(2), dueDate: addDays(2), status: 'pending', priority: 'high', details: 'Update hero section, CTA și testimoniale.' },
+        { id: crypto.randomUUID(), title: 'Calendar editorial aprilie', clientId: appState.clients[1].id, startDate: addDays(0), endDate: addDays(6), dueDate: addDays(3), status: 'onhold', priority: 'medium', details: 'Așteptăm aprobarea vizualurilor.' },
+        { id: crypto.randomUUID(), title: 'Pachet branding final', clientId: appState.clients[2].id, startDate: addDays(-8), endDate: addDays(-1), dueDate: addDays(-1), status: 'finished', priority: 'high', details: 'Manual logo + kit social media.' }
+      ];
+      appState.serviceTemplates = [
+        { id: crypto.randomUUID(), name: 'Social Media Basic', price: 450, deliverables: '12 postări, 12 descrieri, 4 story sets', duration: '30 zile' },
+        { id: crypto.randomUUID(), name: 'Brand Identity', price: 1200, deliverables: 'Logo, paletă culori, ghid utilizare', duration: '14 zile' }
+      ];
+      appState.reminders = [
+        { id: crypto.randomUUID(), title: 'Trimite follow-up client', type: 'push', date: addDays(1), preset: false },
+        { id: crypto.randomUUID(), title: 'Reminder factură scadentă', type: 'automation', date: addDays(2), preset: true }
+      ];
+      appState.timeEntries = [
+        { id: crypto.randomUUID(), taskId: appState.tasks[0].id, clientId: appState.clients[0].id, hours: 2.5, description: 'Wireframe + text revizie', date: addDays(0) },
+        { id: crypto.randomUUID(), taskId: appState.tasks[1].id, clientId: appState.clients[1].id, hours: 1.5, description: 'Plan editorial', date: addDays(0) }
+      ];
+      appState.invoices = [
+        { id: crypto.randomUUID(), number: 'INV-2026-001', clientId: appState.clients[0].id, issueDate: addDays(-4), dueDate: addDays(6), amount: 450, status: 'unpaid', items: [{ description: 'Social media package', qty: 1, price: 450 }] }
+      ];
+      appState.clientPortalLinks = appState.clients.map((client, i) => ({ id: crypto.randomUUID(), clientId: client.id, slug: `portal-${i+1}-${client.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}`, publicUrl: `https://clientflow.app/portal/${i+1}-${client.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')}` }));
+      saveState(); renderAll();
+    }
+    function formatDate(dateStr) { if (!dateStr) return '-'; const d = new Date(dateStr); return d.toLocaleDateString(appState.language === 'ro' ? 'ro-RO' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
+    function getClientName(clientId) { return appState.clients.find(c => c.id === clientId)?.name || '-'; }
+    function getStatusClass(status) { return status === 'onhold' ? 'onhold' : status; }
+    function clipText(text, max) { if (!text) return ''; return text.length > max ? text.slice(0, max - 1).trim() + '…' : text; }
+    function toneRules(tone) {
+      const rules = {
+        professional: { ro: 'Clar, bine structurat, credibil și orientat pe beneficii.', en: 'Clear, structured, credible and benefit-driven.' },
+        casual: { ro: 'Lejer, direct, prietenos și natural.', en: 'Light, direct, friendly and natural.' },
+        funny: { ro: 'Jucăuș, creativ și memorabil.', en: 'Playful, creative and memorable.' },
+        inspirational: { ro: 'Pozitiv și motivațional.', en: 'Positive and motivational.' },
+        urgent: { ro: 'Scurt, alert și orientat pe acțiune.', en: 'Short, sharp and action-oriented.' },
+        storytelling: { ro: 'Narativ și uman.', en: 'Narrative and human.' },
+        educational: { ro: 'Explicativ și util.', en: 'Explanatory and useful.' },
+        provocative: { ro: 'Îndrăzneț și memorabil.', en: 'Bold and memorable.' }
+      };
+      return rules[tone]?.[appState.language] || '';
+    }
+    function generatePlatformText(original, platform) {
+      const emojis = appState.advanced.emoji ? ' ✨📲' : '';
+      const cta = appState.advanced.cta ? (appState.language === 'ro' ? ' Scrie-ne în DM sau programează un demo astăzi.' : ' Send us a DM or book a demo today.') : '';
+      const hashtags = appState.advanced.hashtags ? (appState.language === 'ro' ? ' #marketing #business #organizare #socialmedia' : ' #marketing #business #productivity #socialmedia') : '';
+      const intros = { instagram: appState.language === 'ro' ? 'Versiune pentru Instagram:' : 'Instagram version:', tiktok: appState.language === 'ro' ? 'Versiune pentru TikTok:' : 'TikTok version:', twitter: appState.language === 'ro' ? 'Versiune pentru X:' : 'X version:', linkedin: appState.language === 'ro' ? 'Versiune pentru LinkedIn:' : 'LinkedIn version:', facebook: appState.language === 'ro' ? 'Versiune pentru Facebook:' : 'Facebook version:' };
+      const platformRules = {
+        instagram: appState.language === 'ro' ? 'Hook puternic, fraze scurte, vibe vizual.' : 'Strong hook, short lines, visual vibe.',
+        tiktok: appState.language === 'ro' ? 'Rapid, direct și bazat pe atenție instant.' : 'Fast, direct and built for instant attention.',
+        twitter: appState.language === 'ro' ? 'Ultra scurt și memorabil.' : 'Ultra-short and memorable.',
+        linkedin: appState.language === 'ro' ? 'Profesional și orientat pe rezultate.' : 'Professional and results-focused.',
+        facebook: appState.language === 'ro' ? 'Conversațional și ușor de citit.' : 'Conversational and easy to read.'
+      };
+      let output = `${intros[platform]} ${platformRules[platform]} ${toneRules(appState.selectedTone)}\n\n${original.trim()}${emojis}${cta}${hashtags}`;
+      output = clipText(output.replace(/\s+/g, ' ').trim(), platformLimits[platform]);
+      return output;
+    }
+    function renderNav() {
+      const nav = document.getElementById('nav'); nav.innerHTML = '';
+      sections.forEach(section => { const btn = document.createElement('button'); btn.className = appState.currentSection === section ? 'active' : ''; btn.textContent = t(`nav.${section}`); btn.onclick = () => { appState.currentSection = section; renderAll(); document.getElementById('sidebar').classList.remove('open'); }; nav.appendChild(btn); });
+    }
+    function renderHeader() {
+      document.getElementById('pageTitle').textContent = t('appTitle');
+      document.getElementById('pageSubtitle').textContent = t('appSubtitle');
+      document.getElementById('sidebarTagline').textContent = t('tagline');
+      document.getElementById('quickTipsTitle').textContent = t('ideasTitle');
+      document.getElementById('quickTipsText').textContent = t('ideasText');
+      document.getElementById('languageBtn').textContent = appState.language === 'ro' ? 'RO / EN' : 'EN / RO';
+      updateBrandVisuals();
+    }
+    function updateBrandVisuals() {
+      const mark = document.getElementById('brandMark');
+      const markMobile = document.getElementById('brandMarkMobile');
+      [mark, markMobile].forEach(node => {
+        if (!node) return;
+        node.style.background = `linear-gradient(135deg, ${appState.logo.primary}, ${appState.logo.secondary})`;
+        node.innerHTML = appState.logo.image ? `<img src="${appState.logo.image}" alt="logo" />` : (appState.logo.name || 'CF').slice(0,2).toUpperCase();
+      });
+      document.documentElement.style.setProperty('--primary', appState.logo.primary || '#7c5cff');
+      document.documentElement.style.setProperty('--primary-2', appState.logo.secondary || '#50d4ff');
+    }
+    function renderDashboard() {
+      const section = document.getElementById('dashboardSection');
+      const totalClients = appState.clients.length;
+      const totalTasks = appState.tasks.length;
+      const reminders = appState.reminders.length;
+      const invoices = appState.invoices.length;
+      const urgentTasks = [...appState.tasks].sort((a, b) => scoreTask(b) - scoreTask(a)).slice(0, 4);
+      const latestClients = [...appState.clients].slice(-4).reverse();
+      section.innerHTML = `
+        <div class="grid grid-4">
+          ${[
+            { label: t('dashboard.metrics.0'), value: totalClients, delta: appState.language === 'ro' ? 'Lead-uri și clienți existenți' : 'Leads and current clients' },
+            { label: t('dashboard.metrics.1'), value: totalTasks, delta: appState.language === 'ro' ? 'Task-uri într-un singur loc' : 'Tasks in one place' },
+            { label: t('dashboard.metrics.2'), value: reminders, delta: appState.language === 'ro' ? 'Push + automatizări active' : 'Push + automations active' },
+            { label: t('dashboard.metrics.3'), value: invoices, delta: appState.language === 'ro' ? 'Facturi și scadențe' : 'Invoices and due dates' }
+          ].map(item => `<div class="card metric"><span class="label">${item.label}</span><span class="value">${item.value}</span><span class="delta">${item.delta}</span></div>`).join('')}
+        </div>
+        <div class="grid grid-2">
+          <div class="card"><h3>${t('dashboard.quick')}</h3>${urgentTasks.length ? urgentTasks.map(task => `<div class="task-card space-bottom"><h4>${task.title}</h4><div class="flex small muted"><span>${getClientName(task.clientId)}</span><span>•</span><span>${formatDate(task.dueDate)}</span><span>•</span><span>${t(`tasks.statuses.${task.status}`)}</span></div><div class="space-top small">${task.details || '-'}</div></div>`).join('') : `<div class="empty-state">${t('dashboard.empty')}</div>`}</div>
+          <div class="card"><h3>${t('dashboard.clients')}</h3>${latestClients.length ? latestClients.map(client => `<div class="client-card space-bottom"><h4>${client.name}</h4><div class="small muted">${client.company || '-'} • ${client.service || '-'}</div><div class="small space-top">${client.email || '-'} • ${client.phone || '-'}</div></div>`).join('') : `<div class="empty-state">${t('dashboard.empty')}</div>`}</div>
+        </div>`;
+    }
+    function renderClients() {
+      const section = document.getElementById('clientsSection');
+      section.innerHTML = `
+        <div class="grid grid-2">
+          <div class="card"><h3>${t('clients.addTitle')}</h3><form id="clientForm"><div class="form-grid"><div class="field"><label>${t('clients.name')}</label><input name="name" required /></div><div class="field"><label>${t('clients.company')}</label><input name="company" /></div><div class="field"><label>${t('clients.phone')}</label><input name="phone" /></div><div class="field"><label>${t('clients.email')}</label><input name="email" type="email" /></div></div><div class="field"><label>${t('clients.service')}</label><input name="service" /></div><div class="field"><label>${t('clients.notes')}</label><textarea name="notes"></textarea></div><button class="primary-btn" type="submit">${t('clients.addBtn')}</button></form></div>
+          <div class="card"><h3>${t('clients.listTitle')}</h3>${appState.clients.length ? appState.clients.map(client => `<div class="client-card space-bottom"><div class="flex" style="justify-content:space-between; align-items:flex-start;"><div><h4>${client.name}</h4><div class="small muted">${client.company || '-'}</div></div><button class="danger-btn" onclick="deleteClient('${client.id}')">${t('common.delete')}</button></div><div class="small space-top">${client.email || '-'} • ${client.phone || '-'}</div><div class="small space-top"><strong>${client.service || '-'}</strong></div><div class="small muted space-top">${client.notes || '-'}</div></div>`).join('') : `<div class="empty-state">${t('clients.empty')}</div>`}</div>
+        </div>`;
+      document.getElementById('clientForm').onsubmit = (e) => { e.preventDefault(); const fd = new FormData(e.target); appState.clients.unshift({ id: crypto.randomUUID(), name: fd.get('name'), company: fd.get('company'), phone: fd.get('phone'), email: fd.get('email'), service: fd.get('service'), notes: fd.get('notes') }); saveState(); renderAll(); };
+    }
+    function renderTasks() {
+      const section = document.getElementById('tasksSection');
+      const clientOptions = appState.clients.map(client => `<option value="${client.id}">${client.name}</option>`).join('');
+      const rows = appState.tasks.map(task => `<tr><td>${task.title}</td><td>${getClientName(task.clientId)}</td><td>${formatDate(task.startDate)} → ${formatDate(task.endDate)}</td><td>${formatDate(task.dueDate)}</td><td><span class="status ${getStatusClass(task.status)}">${t(`tasks.statuses.${task.status}`)}</span></td><td>${t(`tasks.priorities.${task.priority}`)}</td><td>${scoreTask(task)}</td><td><button class="danger-btn" onclick="deleteTask('${task.id}')">${t('common.delete')}</button></td></tr>`).join('');
+      section.innerHTML = `
+        <div class="grid grid-2">
+          <div class="card"><h3>${t('tasks.addTitle')}</h3><form id="taskForm"><div class="field"><label>${t('tasks.taskName')}</label><input name="title" required /></div><div class="form-grid"><div class="field"><label>${t('tasks.client')}</label><select name="clientId">${clientOptions || '<option value="">-</option>'}</select></div><div class="field"><label>${t('tasks.status')}</label><select name="status"><option value="pending">${t('tasks.statuses.pending')}</option><option value="onhold">${t('tasks.statuses.onhold')}</option><option value="finished">${t('tasks.statuses.finished')}</option></select></div><div class="field"><label>${t('tasks.start')}</label><input name="startDate" type="date" /></div><div class="field"><label>${t('tasks.end')}</label><input name="endDate" type="date" /></div><div class="field"><label>${t('tasks.due')}</label><input name="dueDate" type="date" /></div><div class="field"><label>${t('tasks.priority')}</label><select name="priority"><option value="low">${t('tasks.priorities.low')}</option><option value="medium">${t('tasks.priorities.medium')}</option><option value="high">${t('tasks.priorities.high')}</option></select></div></div><div class="field"><label>${t('tasks.details')}</label><textarea name="details"></textarea></div><button class="primary-btn" type="submit">${t('tasks.addBtn')}</button></form></div>
+          <div class="card"><h3>${t('tasks.tableTitle')}</h3>${appState.tasks.length ? `<div class="table-wrap"><table><thead><tr><th>${t('tasks.taskName')}</th><th>${t('tasks.client')}</th><th>${t('common.interval')}</th><th>${t('tasks.due')}</th><th>${t('tasks.status')}</th><th>${t('tasks.priority')}</th><th>${t('common.priorityScore')}</th><th>${t('common.delete')}</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="empty-state">${t('tasks.empty')}</div>`}</div>
+        </div>`;
+      document.getElementById('taskForm').onsubmit = (e) => { e.preventDefault(); const fd = new FormData(e.target); appState.tasks.unshift({ id: crypto.randomUUID(), title: fd.get('title'), clientId: fd.get('clientId'), startDate: fd.get('startDate'), endDate: fd.get('endDate'), dueDate: fd.get('dueDate'), status: fd.get('status'), priority: fd.get('priority'), details: fd.get('details') }); saveState(); renderAll(); };
+    }
+    function renderCalendar() {
+      const section = document.getElementById('calendarSection');
+      const now = new Date(), year = now.getFullYear(), month = now.getMonth(); const first = new Date(year, month, 1), last = new Date(year, month + 1, 0); const firstDay = (first.getDay() + 6) % 7; const totalDays = last.getDate(); const monthLabel = `${t('calendar.monthNames')[month]} ${year}`; const dayNames = t('calendar.days').map(d => `<div class="day-name">${d}</div>`).join(''); let cells = '';
+      for (let i = 0; i < firstDay; i++) cells += `<div class="day-cell"></div>`;
+      for (let d = 1; d <= totalDays; d++) { const dateStr = new Date(year, month, d).toISOString().split('T')[0]; const tasksForDay = appState.tasks.filter(task => task.dueDate === dateStr || task.startDate === dateStr || task.endDate === dateStr); const isToday = d === now.getDate(); cells += `<div class="day-cell ${tasksForDay.length ? 'has-task' : ''} ${isToday ? 'today' : ''}"><div class="day-num">${d}</div>${tasksForDay.slice(0, 2).map(task => `<div class="small"><span class="day-task-dot"></span>${clipText(task.title, 16)}</div>`).join('')}</div>`; }
+      section.innerHTML = `<div class="card"><h3>${t('calendar.title')}</h3><p class="muted">${t('calendar.subtitle')}</p><div class="task-card space-bottom"><strong>${monthLabel}</strong></div><div class="calendar">${dayNames}${cells}</div></div>`;
+    }
+    function renderContentStudio() {
+      const section = document.getElementById('contentSection'); const toneKeys = ['professional','casual','funny','inspirational','urgent','storytelling','educational','provocative']; const platforms = ['instagram','tiktok','twitter','linkedin','facebook'];
+      section.innerHTML = `<div class="grid grid-2"><div class="card"><h3>${t('content.title')}</h3><p class="muted">${t('content.subtitle')}</p><div class="field"><label>${t('content.original')}</label><textarea id="originalText" placeholder="${appState.language === 'ro' ? 'Scrie textul de bază aici...' : 'Write your base text here...'}"></textarea></div><div class="field"><label>${t('content.tone')}</label><div class="chip-group" id="toneGroup">${toneKeys.map(key => `<button class="chip ${appState.selectedTone === key ? 'active' : ''}" data-tone="${key}">${t(`content.tones.${key}`)}</button>`).join('')}</div></div><div class="field"><label>${t('content.advanced')}</label><div class="check-list"><label class="check-item"><input type="checkbox" id="optEmoji" ${appState.advanced.emoji ? 'checked' : ''}/> ${t('content.options.emoji')}</label><label class="check-item"><input type="checkbox" id="optCta" ${appState.advanced.cta ? 'checked' : ''}/> ${t('content.options.cta')}</label><label class="check-item"><input type="checkbox" id="optHashtags" ${appState.advanced.hashtags ? 'checked' : ''}/> ${t('content.options.hashtags')}</label></div></div><div class="grid grid-2"><div class="field"><label>${t('content.product')}</label><input id="productField" /></div><div class="field"><label>${t('content.desiredAction')}</label><input id="actionField" /></div></div><button class="primary-btn" id="generateContentBtn">${t('content.generate')}</button><div class="grid grid-2 space-top"><div class="task-card"><h4>${t('content.hashtagTitle')}</h4><div class="small muted" id="hashtagsOutput">#business #marketing #content</div></div><div class="task-card"><h4>${t('content.ctaTitle')}</h4><div class="small muted" id="ctaOutput">—</div></div></div><div class="task-card space-top"><h4>${t('content.captionTitle')}</h4><div class="small muted">${t('content.captionSubtitle')}</div><div class="small space-top" id="captionOutput">—</div></div></div><div class="card"><h3>${appState.language === 'ro' ? 'Info platforme' : 'Platform info'}</h3><div class="platform-grid">${platforms.map(key => `<div class="platform-card"><div class="platform-header"><h4>${t(`content.outputs.${key}`)}</h4><span class="small muted">${platformLimits[key]} ch</span></div><div class="small" id="platform_${key}">${appState.platformOutputs[key] || '—'}</div></div>`).join('')}</div></div></div>`;
+      document.querySelectorAll('[data-tone]').forEach(btn => btn.onclick = () => { appState.selectedTone = btn.dataset.tone; renderContentStudio(); });
+      document.getElementById('generateContentBtn').onclick = () => { appState.advanced.emoji = document.getElementById('optEmoji').checked; appState.advanced.cta = document.getElementById('optCta').checked; appState.advanced.hashtags = document.getElementById('optHashtags').checked; const original = document.getElementById('originalText').value.trim(); const product = document.getElementById('productField').value.trim(); const action = document.getElementById('actionField').value.trim(); document.getElementById('hashtagsOutput').textContent = buildHashtags(product || original); document.getElementById('ctaOutput').textContent = buildCTA(product, action); document.getElementById('captionOutput').textContent = buildCaption(original, product); ['instagram','tiktok','twitter','linkedin','facebook'].forEach(platform => { const result = generatePlatformText(original || product || 'Your message here', platform); appState.platformOutputs[platform] = result; const node = document.getElementById(`platform_${platform}`); if (node) node.textContent = result; }); };
+    }
+    function buildHashtags(seed) { const text = (seed || '').toLowerCase(); const baseRo = ['#branding','#marketing','#organizare','#productivitate','#socialmedia','#business']; const baseEn = ['#branding','#marketing','#productivity','#content','#socialmedia','#business']; const extra = []; if (text.includes('app')) extra.push('#saas','#mobileapp'); if (text.includes('curs') || text.includes('course')) extra.push('#onlinecourse','#education'); if (text.includes('servici')) extra.push('#services','#clientmanagement'); return [...new Set([...(appState.language === 'ro' ? baseRo : baseEn), ...extra])].join(' '); }
+    function buildCTA(product, action) { return appState.language === 'ro' ? `Vrei rezultate mai rapide pentru ${product || 'afacerea ta'}? Fă acum pasul următor: ${action || 'programează un demo'}.` : `Want faster results for ${product || 'your business'}? Take the next step now: ${action || 'book a demo'}.`; }
+    function buildCaption(original, product) { const content = original || (appState.language === 'ro' ? `Transformăm ${product || 'serviciul tău'} într-un mesaj clar și memorabil.` : `We turn ${product || 'your service'} into a clear, memorable message.`); return clipText(content + (appState.language === 'ro' ? ' Hook bun. Beneficiu clar. CTA final.' : ' Strong hook. Clear benefit. CTA at the end.'), 220); }
+    function renderPoster() {
+      const section = document.getElementById('posterSection');
+      const defaultSchedule = appState.language === 'ro' ? 'Luni - Vineri\n09:00 - 18:00\n\nSâmbătă\n10:00 - 14:00\n\nDuminică\nÎnchis' : 'Monday - Friday\n09:00 - 18:00\n\nSaturday\n10:00 - 14:00\n\nSunday\nClosed';
+      section.innerHTML = `<div class="card"><h3>${t('poster.title')}</h3><p class="muted">${t('poster.subtitle')}</p><div class="poster-preview-wrap"><canvas id="availabilityCanvas" width="1080" height="1350"></canvas><div><div class="form-grid"><div class="field"><label>${t('poster.logoName')}</label><input id="logoNameInput" value="${appState.logo.name}" /></div><div class="field"><label>${t('poster.contact')}</label><input id="contactInput" value="contact@clientflow.app" /></div><div class="field"><label>${t('poster.primary')}</label><input id="primaryColorInput" type="color" value="${appState.logo.primary}" /></div><div class="field"><label>${t('poster.secondary')}</label><input id="secondaryColorInput" type="color" value="${appState.logo.secondary}" /></div></div><div class="field"><label>${t('poster.upload')}</label><input id="logoUploadInput" type="file" accept="image/*" /></div><div class="field"><label>${t('poster.schedule')}</label><textarea id="scheduleInput">${defaultSchedule}</textarea></div><div class="flex"><button class="primary-btn" id="generatePosterBtn">${t('poster.regenerate')}</button><button class="ghost-btn" id="downloadPosterBtn">${t('poster.download')}</button><button class="success-btn" id="downloadPosterPdfBtn">${t('poster.downloadPdf')}</button></div></div></div></div>`;
+      document.getElementById('generatePosterBtn').onclick = generatePoster;
+      document.getElementById('downloadPosterBtn').onclick = downloadPoster;
+      document.getElementById('downloadPosterPdfBtn').onclick = exportPosterPdf;
+      document.getElementById('logoUploadInput').onchange = handleLogoUpload;
+      generatePoster();
+    }
+    function handleLogoUpload(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => { appState.logo.image = reader.result; saveState(); updateBrandVisuals(); generatePoster(); };
+      reader.readAsDataURL(file);
+    }
+    function generatePoster() {
+      const canvas = document.getElementById('availabilityCanvas'); const ctx = canvas.getContext('2d');
+      const logoName = document.getElementById('logoNameInput').value.trim() || 'ClientFlow'; const contact = document.getElementById('contactInput').value.trim() || 'contact@brand.com'; const primary = document.getElementById('primaryColorInput').value; const secondary = document.getElementById('secondaryColorInput').value; const schedule = document.getElementById('scheduleInput').value.split('\n');
+      appState.logo = { ...appState.logo, name: logoName, primary, secondary }; saveState(); updateBrandVisuals();
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height); gradient.addColorStop(0, primary); gradient.addColorStop(1, secondary); ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.beginPath(); ctx.arc(150, 160, 120, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); ctx.arc(920, 1120, 180, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(8,12,27,0.18)'; roundRect(ctx, 70, 70, 940, 1210, 46, true, false);
+      if (appState.logo.image) { const img = new Image(); img.onload = () => { ctx.save(); roundRect(ctx, 130, 110, 120, 120, 26, false, false); ctx.clip(); ctx.drawImage(img, 130, 110, 120, 120); ctx.restore(); drawPosterText(ctx, logoName, contact, schedule); }; img.src = appState.logo.image; } else { drawPosterText(ctx, logoName, contact, schedule); }
+    }
+    function drawPosterText(ctx, logoName, contact, schedule) {
+      ctx.fillStyle = '#ffffff'; ctx.font = 'bold 64px Inter, Arial'; ctx.fillText(logoName, 280, 180); ctx.font = 'bold 88px Inter, Arial'; ctx.fillText(appState.language === 'ro' ? 'Program' : 'Availability', 130, 330); ctx.fillStyle = 'rgba(255,255,255,0.88)'; ctx.font = '32px Inter, Arial'; ctx.fillText(appState.language === 'ro' ? 'Suntem aici pentru tine' : 'We are here for you', 130, 385); ctx.fillStyle = '#ffffff'; roundRect(ctx, 110, 450, 860, 560, 34, true, false); ctx.fillStyle = '#0b1020'; ctx.font = 'bold 48px Inter, Arial'; ctx.fillText(appState.language === 'ro' ? 'Orar' : 'Schedule', 160, 530); ctx.font = '36px Inter, Arial'; let y = 620; schedule.forEach(line => { ctx.fillText(line || ' ', 160, y); y += line.trim() ? 60 : 26; }); ctx.fillStyle = '#ffffff'; ctx.font = 'bold 34px Inter, Arial'; ctx.fillText(contact, 130, 1160); ctx.font = '28px Inter, Arial'; ctx.fillText(appState.language === 'ro' ? 'Generat direct din dashboard' : 'Generated directly from dashboard', 130, 1210);
+    }
+    function roundRect(ctx, x, y, width, height, radius, fill, stroke) { if (typeof radius === 'number') radius = { tl: radius, tr: radius, br: radius, bl: radius }; ctx.beginPath(); ctx.moveTo(x + radius.tl, y); ctx.lineTo(x + width - radius.tr, y); ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr); ctx.lineTo(x + width, y + height - radius.br); ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height); ctx.lineTo(x + radius.bl, y + height); ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl); ctx.lineTo(x, y + radius.tl); ctx.quadraticCurveTo(x, y, x + radius.tl, y); ctx.closePath(); if (fill) ctx.fill(); if (stroke) ctx.stroke(); }
+    function downloadPoster() { const canvas = document.getElementById('availabilityCanvas'); const link = document.createElement('a'); link.href = canvas.toDataURL('image/png'); link.download = 'availability-poster.png'; link.click(); }
+    function exportPosterPdf() {
+      const canvas = document.getElementById('availabilityCanvas'); const dataUrl = canvas.toDataURL('image/png'); const w = window.open('', '_blank'); if (!w) return; w.document.write(`<!DOCTYPE html><html><head><title>Poster PDF</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;background:#f3f4f6}img{width:90%;max-width:900px} @media print{body{background:#fff} img{width:100%;max-width:none}}</style></head><body><img src="${dataUrl}" onload="setTimeout(()=>window.print(),300)" /></body></html>`); w.document.close();
+    }
+    function renderTemplates() {
+      const section = document.getElementById('templatesSection');
+      section.innerHTML = `<div class="grid grid-2"><div class="card"><h3>${t('templates.add')}</h3><form id="templateForm"><div class="field"><label>${t('templates.name')}</label><input name="name" required /></div><div class="form-grid"><div class="field"><label>${t('templates.price')}</label><input name="price" type="number" step="0.01" /></div><div class="field"><label>${t('templates.duration')}</label><input name="duration" /></div></div><div class="field"><label>${t('templates.deliverables')}</label><textarea name="deliverables"></textarea></div><button class="primary-btn" type="submit">${t('common.save')}</button></form></div><div class="card"><h3>${t('templates.list')}</h3>${appState.serviceTemplates.length ? appState.serviceTemplates.map(item => `<div class="task-card space-bottom"><div class="flex" style="justify-content:space-between;align-items:flex-start"><div><h4>${item.name}</h4><div class="small muted">${item.duration} • ${item.price}</div></div><button class="danger-btn" onclick="deleteTemplate('${item.id}')">${t('common.delete')}</button></div><div class="small space-top">${item.deliverables}</div></div>`).join('') : `<div class="empty-state">${t('common.empty')}</div>`}</div></div>`;
+      document.getElementById('templateForm').onsubmit = (e) => { e.preventDefault(); const fd = new FormData(e.target); appState.serviceTemplates.unshift({ id: crypto.randomUUID(), name: fd.get('name'), price: fd.get('price'), duration: fd.get('duration'), deliverables: fd.get('deliverables') }); saveState(); renderAll(); };
+    }
+    function renderAutomation() {
+      const section = document.getElementById('automationSection');
+      section.innerHTML = `<div class="grid grid-2"><div class="card"><h3>${t('automation.add')}</h3><form id="reminderForm"><div class="field"><label>${t('automation.name')}</label><input name="title" required /></div><div class="form-grid"><div class="field"><label>${t('automation.type')}</label><select name="type"><option value="push">Push</option><option value="email">Email</option><option value="automation">Automation</option></select></div><div class="field"><label>${t('automation.date')}</label><input name="date" type="date" required /></div></div><button class="primary-btn" type="submit">${t('common.save')}</button></form><div class="space-top"><h4>${t('automation.preset')}</h4><div class="flex"><button class="ghost-btn" onclick="addPresetAutomations()">${t('automation.presetBtn')}</button></div></div></div><div class="card"><h3>${t('automation.title')}</h3>${appState.reminders.length ? appState.reminders.map(item => `<div class="automation-item space-bottom"><div class="flex" style="justify-content:space-between;align-items:flex-start"><div><strong>${item.title}</strong><div class="small muted">${item.type} • ${formatDate(item.date)} ${item.preset ? '• preset' : ''}</div></div><button class="danger-btn" onclick="deleteReminder('${item.id}')">${t('common.delete')}</button></div></div>`).join('') : `<div class="empty-state">${t('common.empty')}</div>`}</div></div>`;
+      document.getElementById('reminderForm').onsubmit = (e) => { e.preventDefault(); const fd = new FormData(e.target); appState.reminders.unshift({ id: crypto.randomUUID(), title: fd.get('title'), type: fd.get('type'), date: fd.get('date'), preset: false }); saveState(); renderAll(); };
+    }
+    function addPresetAutomations() {
+      const today = new Date(); const addDays = (d) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + d).toISOString().split('T')[0];
+      const presets = [
+        { title: appState.language === 'ro' ? 'Push reminder cu 24h înainte de deadline' : 'Push reminder 24h before deadline', type: 'push', date: addDays(1), preset: true },
+        { title: appState.language === 'ro' ? 'Email automat pentru facturi scadente' : 'Automatic email for due invoices', type: 'automation', date: addDays(2), preset: true },
+        { title: appState.language === 'ro' ? 'Follow-up client după task finalizat' : 'Client follow-up after completed task', type: 'automation', date: addDays(3), preset: true }
+      ];
+      appState.reminders.unshift(...presets.map(item => ({ id: crypto.randomUUID(), ...item }))); saveState(); renderAll();
+    }
+    function renderTimeTracking() {
+      const section = document.getElementById('timeSection');
+      const clientOptions = appState.clients.map(client => `<option value="${client.id}">${client.name}</option>`).join('');
+      const taskOptions = appState.tasks.map(task => `<option value="${task.id}">${task.title}</option>`).join('');
+      const totalHours = appState.timeEntries.reduce((sum, item) => sum + Number(item.hours || 0), 0).toFixed(1);
+      section.innerHTML = `<div class="grid grid-2"><div class="card"><h3>${t('time.add')}</h3><form id="timeForm"><div class="form-grid"><div class="field"><label>${t('tasks.client')}</label><select name="clientId">${clientOptions}</select></div><div class="field"><label>${t('tasks.taskName')}</label><select name="taskId">${taskOptions}</select></div><div class="field"><label>${t('time.hours')}</label><input name="hours" type="number" step="0.1" required /></div><div class="field"><label>${t('automation.date')}</label><input name="date" type="date" required /></div></div><div class="field"><label>${t('time.description')}</label><textarea name="description"></textarea></div><button class="primary-btn" type="submit">${t('common.save')}</button></form></div><div class="card"><h3>${t('time.title')}</h3><div class="task-card space-bottom"><strong>${t('time.total')}: ${totalHours}h</strong></div>${appState.timeEntries.length ? appState.timeEntries.map(item => `<div class="task-card space-bottom"><div class="flex" style="justify-content:space-between;align-items:flex-start"><div><h4>${getClientName(item.clientId)} • ${Number(item.hours).toFixed(1)}h</h4><div class="small muted">${formatDate(item.date)}</div></div><button class="danger-btn" onclick="deleteTimeEntry('${item.id}')">${t('common.delete')}</button></div><div class="small space-top">${item.description || '-'}</div></div>`).join('') : `<div class="empty-state">${t('common.empty')}</div>`}</div></div>`;
+      document.getElementById('timeForm').onsubmit = (e) => { e.preventDefault(); const fd = new FormData(e.target); appState.timeEntries.unshift({ id: crypto.randomUUID(), clientId: fd.get('clientId'), taskId: fd.get('taskId'), hours: fd.get('hours'), date: fd.get('date'), description: fd.get('description') }); saveState(); renderAll(); };
+    }
+    function renderInvoices() {
+      const section = document.getElementById('invoiceSection');
+      const clientOptions = appState.clients.map(client => `<option value="${client.id}">${client.name}</option>`).join('');
+      section.innerHTML = `<div class="grid grid-2"><div class="card"><h3>${t('invoice.create')}</h3><form id="invoiceForm"><div class="form-grid"><div class="field"><label>${t('invoice.number')}</label><input name="number" required value="INV-${new Date().getFullYear()}-${String(appState.invoices.length+1).padStart(3,'0')}" /></div><div class="field"><label>${t('tasks.client')}</label><select name="clientId">${clientOptions}</select></div><div class="field"><label>${t('invoice.issue')}</label><input name="issueDate" type="date" required /></div><div class="field"><label>${t('invoice.due')}</label><input name="dueDate" type="date" required /></div><div class="field"><label>${t('invoice.amount')}</label><input name="amount" type="number" step="0.01" required /></div><div class="field"><label>${t('invoice.status')}</label><select name="status"><option value="unpaid">Unpaid</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select></div></div><div class="field"><label>${t('time.description')}</label><textarea name="description"></textarea></div><button class="primary-btn" type="submit">${t('common.save')}</button></form></div><div class="card"><h3>${t('invoice.list')}</h3>${appState.invoices.length ? appState.invoices.map(inv => `<div class="invoice-preview space-bottom"><div class="flex" style="justify-content:space-between;align-items:flex-start"><div><h4>${inv.number}</h4><div class="small muted">${getClientName(inv.clientId)} • ${formatDate(inv.issueDate)} → ${formatDate(inv.dueDate)}</div></div><div class="flex"><span class="status ${inv.status}">${inv.status}</span><button class="ghost-btn" onclick="openInvoice('${inv.id}')">Preview</button><button class="success-btn" onclick="exportInvoicePdf('${inv.id}')">${t('invoice.exportPdf')}</button><button class="danger-btn" onclick="deleteInvoice('${inv.id}')">${t('common.delete')}</button></div></div><div class="small space-top">${inv.amount}</div></div>`).join('') : `<div class="empty-state">${t('common.empty')}</div>`}<div id="invoicePreviewMount" class="space-top"></div></div></div>`;
+      document.getElementById('invoiceForm').onsubmit = (e) => { e.preventDefault(); const fd = new FormData(e.target); appState.invoices.unshift({ id: crypto.randomUUID(), number: fd.get('number'), clientId: fd.get('clientId'), issueDate: fd.get('issueDate'), dueDate: fd.get('dueDate'), amount: fd.get('amount'), status: fd.get('status'), items: [{ description: fd.get('description') || 'Service', qty: 1, price: Number(fd.get('amount')) }] }); saveState(); renderAll(); };
+    }
+    function invoiceHTML(invoice) {
+      const client = appState.clients.find(c => c.id === invoice.clientId);
+      return `<div class="invoice-sheet" id="invoice-sheet-${invoice.id}"><div class="flex" style="justify-content:space-between;align-items:flex-start"><div><h2>${appState.logo.name || 'ClientFlow'}</h2><p class="muted-dark">contact@clientflow.app</p></div><div style="text-align:right"><h2>${invoice.number}</h2><p class="muted-dark">${formatDate(invoice.issueDate)}</p></div></div><hr /><div class="grid grid-2"><div><h3>${appState.language === 'ro' ? 'Facturat către' : 'Bill to'}</h3><p>${client?.name || '-'}<br>${client?.company || '-'}<br>${client?.email || '-'}</p></div><div><h3>${appState.language === 'ro' ? 'Scadență' : 'Due date'}</h3><p>${formatDate(invoice.dueDate)}<br>${appState.language === 'ro' ? 'Status' : 'Status'}: ${invoice.status}</p></div></div><table style="width:100%;margin-top:16px"><thead><tr><th>${appState.language === 'ro' ? 'Descriere' : 'Description'}</th><th>Qty</th><th>${appState.language === 'ro' ? 'Preț' : 'Price'}</th><th>Total</th></tr></thead><tbody>${invoice.items.map(item => `<tr><td>${item.description}</td><td>${item.qty}</td><td>${Number(item.price).toFixed(2)}</td><td>${(item.qty * item.price).toFixed(2)}</td></tr>`).join('')}</tbody></table><div style="text-align:right;margin-top:20px"><h2>Total: ${Number(invoice.amount).toFixed(2)}</h2></div></div>`;
+    }
+    function openInvoice(id) { const invoice = appState.invoices.find(inv => inv.id === id); if (!invoice) return; const mount = document.getElementById('invoicePreviewMount'); if (mount) mount.innerHTML = invoiceHTML(invoice); }
+    function exportInvoicePdf(id) {
+      const invoice = appState.invoices.find(inv => inv.id === id);
+      if (!invoice) return;
+
+      const html = invoiceHTML(invoice);
+      const w = window.open('', '_blank');
+      if (!w) return;
+
+      w.document.write(`<!DOCTYPE html><html><head><title>${invoice.number}</title><style>body{font-family:Arial,Helvetica,sans-serif;background:#f3f4f6;padding:24px}.invoice-sheet{background:#fff;color:#111827;border-radius:24px;padding:28px;max-width:850px;margin:0 auto}table{width:100%;border-collapse:collapse}th,td{padding:12px;border-bottom:1px solid #e5e7eb;text-align:left}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.muted-dark{color:#6b7280}@media print{body{background:#fff;padding:0}.invoice-sheet{max-width:none;border-radius:0}}</style></head><body>${html}<script>setTimeout(function(){window.print();},300)<\/script></body></html>`);
+      w.document.close();
+    }
+    function renderPortal() {
+      const section = document.getElementById('portalSection');
+      const clientOptions = appState.clients.map(client => `<option value="${client.id}">${client.name}</option>`).join('');
+      const latestPortal = appState.clientPortalLinks[0];
+      section.innerHTML = `<div class="grid grid-2"><div class="card"><h3>${t('portal.create')}</h3><form id="portalForm"><div class="field"><label>${t('tasks.client')}</label><select name="clientId">${clientOptions}</select></div><button class="primary-btn" type="submit">${t('portal.create')}</button></form><div class="space-top"><h4>${t('portal.url')}</h4>${appState.clientPortalLinks.length ? appState.clientPortalLinks.map(item => `<div class="portal-card space-bottom"><div class="flex" style="justify-content:space-between;align-items:flex-start"><div><h4>${getClientName(item.clientId)}</h4><div class="small muted">${item.publicUrl}</div></div><div class="flex"><button class="ghost-btn" onclick="previewPortal('${item.id}')">Preview</button><button class="danger-btn" onclick="deletePortal('${item.id}')">${t('common.delete')}</button></div></div></div>`).join('') : `<div class="empty-state">${t('common.empty')}</div>`}</div></div><div class="card"><h3>${t('portal.preview')}</h3><div id="portalPreviewMount">${latestPortal ? portalHTML(latestPortal) : `<div class="empty-state">${t('common.empty')}</div>`}</div></div></div>`;
+      document.getElementById('portalForm').onsubmit = (e) => { e.preventDefault(); const fd = new FormData(e.target); const clientId = fd.get('clientId'); const clientName = getClientName(clientId); const slug = `portal-${Date.now()}-${clientName.toLowerCase().replace(/[^a-z0-9]+/g,'-')}`; appState.clientPortalLinks.unshift({ id: crypto.randomUUID(), clientId, slug, publicUrl: `https://clientflow.app/portal/${slug}` }); saveState(); renderAll(); };
+    }
+    function portalHTML(link) {
+      const client = appState.clients.find(c => c.id === link.clientId); const clientTasks = appState.tasks.filter(t => t.clientId === link.clientId); const clientInvoices = appState.invoices.filter(i => i.clientId === link.clientId);
+      return `<div class="portal-card" style="background:#fff;color:#111827"><div class="flex" style="justify-content:space-between;align-items:flex-start"><div><h4 style="color:#111827">${client?.name || '-'}</h4><div class="small" style="color:#6b7280">${client?.company || ''}</div></div><div style="padding:8px 12px;border-radius:999px;background:${appState.logo.primary};color:#fff">Portal</div></div><div class="space-top" style="color:#111827"><strong>${appState.language === 'ro' ? 'Task-uri active' : 'Active tasks'}:</strong><ul>${clientTasks.map(task => `<li>${task.title} — ${t(`tasks.statuses.${task.status}`)}</li>`).join('') || '<li>-</li>'}</ul></div><div class="space-top" style="color:#111827"><strong>${appState.language === 'ro' ? 'Facturi' : 'Invoices'}:</strong><ul>${clientInvoices.map(inv => `<li>${inv.number} — ${inv.amount} — ${inv.status}</li>`).join('') || '<li>-</li>'}</ul></div><div class="space-top small" style="color:#6b7280">${link.publicUrl}</div></div>`;
+    }
+    function previewPortal(id) { const portal = appState.clientPortalLinks.find(p => p.id === id); const mount = document.getElementById('portalPreviewMount'); if (mount && portal) mount.innerHTML = portalHTML(portal); }
+    function renderVisibility() { sections.forEach(section => document.getElementById(section + 'Section').classList.toggle('active', appState.currentSection === section)); }
+    function renderAll() { renderHeader(); renderNav(); renderVisibility(); renderDashboard(); renderClients(); renderTasks(); renderCalendar(); renderContentStudio(); renderPoster(); renderTemplates(); renderAutomation(); renderTimeTracking(); renderInvoices(); renderPortal(); }
+    function deleteClient(id) { appState.clients = appState.clients.filter(client => client.id !== id); appState.tasks = appState.tasks.filter(task => task.clientId !== id); appState.clientPortalLinks = appState.clientPortalLinks.filter(link => link.clientId !== id); appState.invoices = appState.invoices.filter(inv => inv.clientId !== id); appState.timeEntries = appState.timeEntries.filter(te => te.clientId !== id); saveState(); renderAll(); }
+    function deleteTask(id) { appState.tasks = appState.tasks.filter(task => task.id !== id); appState.timeEntries = appState.timeEntries.filter(te => te.taskId !== id); saveState(); renderAll(); }
+    function deleteTemplate(id) { appState.serviceTemplates = appState.serviceTemplates.filter(item => item.id !== id); saveState(); renderAll(); }
+    function deleteReminder(id) { appState.reminders = appState.reminders.filter(item => item.id !== id); saveState(); renderAll(); }
+    function deleteTimeEntry(id) { appState.timeEntries = appState.timeEntries.filter(item => item.id !== id); saveState(); renderAll(); }
+    function deleteInvoice(id) { appState.invoices = appState.invoices.filter(item => item.id !== id); const mount = document.getElementById('invoicePreviewMount'); if (mount) mount.innerHTML = ''; saveState(); renderAll(); }
+    function deletePortal(id) { appState.clientPortalLinks = appState.clientPortalLinks.filter(item => item.id !== id); saveState(); renderAll(); }
+    window.deleteClient = deleteClient; window.deleteTask = deleteTask; window.deleteTemplate = deleteTemplate; window.deleteReminder = deleteReminder; window.deleteTimeEntry = deleteTimeEntry; window.deleteInvoice = deleteInvoice; window.deletePortal = deletePortal; window.addPresetAutomations = addPresetAutomations; window.openInvoice = openInvoice; window.exportInvoicePdf = exportInvoicePdf; window.previewPortal = previewPortal;
+    document.getElementById('languageBtn').onclick = () => { appState.language = appState.language === 'ro' ? 'en' : 'ro'; saveState(); renderAll(); };
+    document.getElementById('seedBtn').onclick = seedDemoData;
+    document.getElementById('resetBtn').onclick = () => { appState.clients = []; appState.tasks = []; appState.platformOutputs = {}; appState.serviceTemplates = []; appState.reminders = []; appState.timeEntries = []; appState.invoices = []; appState.clientPortalLinks = []; appState.logo = { name:'ClientFlow', primary:'#7c5cff', secondary:'#50d4ff', image:'' }; saveState(); renderAll(); };
+    document.getElementById('mobileMenu').onclick = () => { document.getElementById('sidebar').classList.toggle('open'); };
+    renderAll();
+  </script>
+</body>
+</html>
