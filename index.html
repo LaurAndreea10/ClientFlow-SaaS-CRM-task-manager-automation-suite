@@ -193,7 +193,15 @@
       reminders: JSON.parse(localStorage.getItem('cf_reminders') || '[]'),
       timeEntries: JSON.parse(localStorage.getItem('cf_time_entries') || '[]'),
       invoices: JSON.parse(localStorage.getItem('cf_invoices') || '[]'),
-      clientPortalLinks: JSON.parse(localStorage.getItem('cf_portal_links') || '[]')
+      clientPortalLinks: JSON.parse(localStorage.getItem('cf_portal_links') || '[]'),
+      ui: {
+        clientSearch: '',
+        taskSearch: '',
+        taskStatusFilter: 'all',
+        taskPriorityFilter: 'all',
+        taskSort: 'dueAsc',
+        invoiceBulkStatus: 'unpaid'
+      }
     };
 
     const translations = {
@@ -213,10 +221,10 @@
         content: { title: 'Adaptare Text', subtitle: 'Rescrie conținut pentru fiecare platformă și ton de voce.', original: 'Text original', tone: 'Ton de voce', advanced: 'Opțiuni avansate', generate: 'Generează variante', tones: { professional: '💼 Profesional', casual: '😎 Casual', funny: '😂 Amuzant', inspirational: '✨ Inspirațional', urgent: '🔥 Urgent', storytelling: '📖 Storytelling', educational: '🎓 Educativ', provocative: '💥 Provocator' }, options: { emoji: 'Adaugă emoji-uri', cta: 'Adaugă CTA la final', hashtags: 'Include hashtag-uri' }, hashtagTitle: 'Generator hashtag-uri', captionTitle: 'Caption Writer', captionSubtitle: 'Generează captions creative + tip', ctaTitle: 'CTA + Hook Generator', product: 'Produs / Serviciu', desiredAction: 'Acțiune dorită', outputs: { instagram: 'Instagram', tiktok: 'TikTok', twitter: 'X/Twitter', linkedin: 'LinkedIn', facebook: 'Facebook' } },
         poster: { title: 'Generator imagine program disponibil', subtitle: 'Clientul poate încărca logo, iar imaginea preia culorile brandului și permite export PNG/PDF.', logoName: 'Nume brand / logo text', primary: 'Culoare primară', secondary: 'Culoare secundară', schedule: 'Program disponibil', contact: 'Contact', regenerate: 'Generează imagine', download: 'Descarcă PNG', downloadPdf: 'Export PDF', upload: 'Încarcă logo' },
         templates: { title: 'Template-uri servicii', add: 'Adaugă template', name: 'Nume template', price: 'Preț', deliverables: 'Livrabile', duration: 'Durată', list: 'Template-uri salvate' },
-        automation: { title: 'Reminder Center & automatizări', add: 'Adaugă reminder', name: 'Titlu reminder', type: 'Tip', date: 'Dată', preset: 'Automatizări presetate', presetBtn: 'Activează presetări' },
+        automation: { title: 'Reminder drafts & automatizări', add: 'Adaugă reminder', name: 'Titlu reminder', type: 'Tip', date: 'Dată', preset: 'Automatizări presetate', presetBtn: 'Activează presetări' },
         time: { title: 'Time tracking', add: 'Adaugă timp lucrat', hours: 'Ore', description: 'Descriere', total: 'Total ore' },
-        invoice: { title: 'Facturare', create: 'Generează factură', number: 'Număr factură', issue: 'Data emiterii', due: 'Scadență', amount: 'Suma', status: 'Status', list: 'Facturi create', exportPdf: 'Export PDF factură' },
-        portal: { title: 'Portal client', create: 'Generează link public/simulat', url: 'Link portal', preview: 'Preview portal' },
+        invoice: { title: 'Facturare', create: 'Generează factură', number: 'Număr factură', issue: 'Data emiterii', due: 'Scadență', amount: 'Suma', status: 'Status', list: 'Facturi create', exportPdf: 'Print-ready invoice' },
+        portal: { title: 'Portal client', create: 'Generează link portal preview', url: 'Link portal', preview: 'Portal preview (simulat)' },
         common: { delete: 'Șterge', save: 'Salvează', empty: 'Nicio înregistrare', priorityScore: 'Scor prioritate', interval: 'Interval', downloadPdf: 'Export PDF' }
       },
       en: {
@@ -235,10 +243,10 @@
         content: { title: 'Text Adaptation', subtitle: 'Rewrite content for each platform and tone of voice.', original: 'Original text', tone: 'Tone of voice', advanced: 'Advanced options', generate: 'Generate variants', tones: { professional: '💼 Professional', casual: '😎 Casual', funny: '😂 Funny', inspirational: '✨ Inspirational', urgent: '🔥 Urgent', storytelling: '📖 Storytelling', educational: '🎓 Educational', provocative: '💥 Provocative' }, options: { emoji: 'Add emojis', cta: 'Add CTA at the end', hashtags: 'Include hashtags' }, hashtagTitle: 'Hashtag generator', captionTitle: 'Caption Writer', captionSubtitle: 'Generate creative captions + type', ctaTitle: 'CTA + Hook Generator', product: 'Product / Service', desiredAction: 'Desired action', outputs: { instagram: 'Instagram', tiktok: 'TikTok', twitter: 'X/Twitter', linkedin: 'LinkedIn', facebook: 'Facebook' } },
         poster: { title: 'Availability image generator', subtitle: 'Client can upload a logo, and the image keeps brand colors with PNG/PDF export.', logoName: 'Brand / logo text', primary: 'Primary color', secondary: 'Secondary color', schedule: 'Availability schedule', contact: 'Contact', regenerate: 'Generate image', download: 'Download PNG', downloadPdf: 'Export PDF', upload: 'Upload logo' },
         templates: { title: 'Service templates', add: 'Add template', name: 'Template name', price: 'Price', deliverables: 'Deliverables', duration: 'Duration', list: 'Saved templates' },
-        automation: { title: 'Reminder Center & automations', add: 'Add reminder', name: 'Reminder title', type: 'Type', date: 'Date', preset: 'Preset automations', presetBtn: 'Enable presets' },
+        automation: { title: 'Reminder drafts & automations', add: 'Add reminder', name: 'Reminder title', type: 'Type', date: 'Date', preset: 'Preset automations', presetBtn: 'Enable presets' },
         time: { title: 'Time tracking', add: 'Add time entry', hours: 'Hours', description: 'Description', total: 'Total hours' },
-        invoice: { title: 'Invoicing', create: 'Generate invoice', number: 'Invoice number', issue: 'Issue date', due: 'Due date', amount: 'Amount', status: 'Status', list: 'Created invoices', exportPdf: 'Export invoice PDF' },
-        portal: { title: 'Client portal', create: 'Generate public/simulated link', url: 'Portal link', preview: 'Portal preview' },
+        invoice: { title: 'Invoicing', create: 'Generate invoice', number: 'Invoice number', issue: 'Issue date', due: 'Due date', amount: 'Amount', status: 'Status', list: 'Created invoices', exportPdf: 'Print-ready invoice' },
+        portal: { title: 'Client portal', create: 'Generate portal preview link', url: 'Portal link', preview: 'Portal preview (simulated)' },
         common: { delete: 'Delete', save: 'Save', empty: 'No records', priorityScore: 'Priority score', interval: 'Interval', downloadPdf: 'Export PDF' }
       }
     };
@@ -343,6 +351,29 @@
       document.getElementById('languageBtn').textContent = appState.language === 'ro' ? 'RO / EN' : 'EN / RO';
       updateBrandVisuals();
     }
+
+    function normalizeText(value) { return String(value || '').trim(); }
+    function validateClient(client) {
+      const errors = [];
+      if (!normalizeText(client.name)) errors.push(appState.language === 'ro' ? 'Numele clientului este obligatoriu.' : 'Client name is required.');
+      if (normalizeText(client.email) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(client.email)) errors.push(appState.language === 'ro' ? 'Email invalid.' : 'Invalid email.');
+      return errors;
+    }
+    function validateTask(task) {
+      const errors = [];
+      if (!normalizeText(task.title)) errors.push(appState.language === 'ro' ? 'Titlul task-ului este obligatoriu.' : 'Task title is required.');
+      if (task.clientId && !appState.clients.some(c => c.id === task.clientId)) errors.push(appState.language === 'ro' ? 'Client invalid pentru task.' : 'Invalid client for task.');
+      if (task.startDate && task.endDate && task.endDate < task.startDate) errors.push(appState.language === 'ro' ? 'Data finală nu poate fi înainte de data de start.' : 'End date cannot be before start date.');
+      if (task.dueDate && task.startDate && task.dueDate < task.startDate) errors.push(appState.language === 'ro' ? 'Deadline-ul nu poate fi înainte de start.' : 'Deadline cannot be before start date.');
+      return errors;
+    }
+    function validateInvoice(invoice) {
+      const errors = [];
+      if (!normalizeText(invoice.number)) errors.push(appState.language === 'ro' ? 'Numărul facturii este obligatoriu.' : 'Invoice number is required.');
+      if (Number(invoice.amount) <= 0) errors.push(appState.language === 'ro' ? 'Suma trebuie să fie pozitivă.' : 'Amount must be positive.');
+      if (invoice.dueDate && invoice.issueDate && invoice.dueDate < invoice.issueDate) errors.push(appState.language === 'ro' ? 'Scadența nu poate fi înainte de emitere.' : 'Due date cannot be before issue date.');
+      return errors;
+    }
     function updateBrandVisuals() {
       const mark = document.getElementById('brandMark');
       const markMobile = document.getElementById('brandMarkMobile');
@@ -378,23 +409,45 @@
     }
     function renderClients() {
       const section = document.getElementById('clientsSection');
+      const query = appState.ui.clientSearch.trim().toLowerCase();
+      const filteredClients = appState.clients.filter(client => [client.name, client.email, client.company].some(v => String(v || '').toLowerCase().includes(query)));
       section.innerHTML = `
         <div class="grid grid-2">
           <div class="card"><h3>${t('clients.addTitle')}</h3><form id="clientForm"><div class="form-grid"><div class="field"><label>${t('clients.name')}</label><input name="name" required /></div><div class="field"><label>${t('clients.company')}</label><input name="company" /></div><div class="field"><label>${t('clients.phone')}</label><input name="phone" /></div><div class="field"><label>${t('clients.email')}</label><input name="email" type="email" /></div></div><div class="field"><label>${t('clients.service')}</label><input name="service" /></div><div class="field"><label>${t('clients.notes')}</label><textarea name="notes"></textarea></div><button class="primary-btn" type="submit">${t('clients.addBtn')}</button></form></div>
-          <div class="card"><h3>${t('clients.listTitle')}</h3>${appState.clients.length ? appState.clients.map(client => `<div class="client-card space-bottom"><div class="flex" style="justify-content:space-between; align-items:flex-start;"><div><h4>${client.name}</h4><div class="small muted">${client.company || '-'}</div></div><button class="danger-btn" onclick="deleteClient('${client.id}')">${t('common.delete')}</button></div><div class="small space-top">${client.email || '-'} • ${client.phone || '-'}</div><div class="small space-top"><strong>${client.service || '-'}</strong></div><div class="small muted space-top">${client.notes || '-'}</div></div>`).join('') : `<div class="empty-state">${t('clients.empty')}</div>`}</div>
+          <div class="card"><h3>${t('clients.listTitle')}</h3><div class="field"><input id="clientSearch" placeholder="${appState.language === 'ro' ? 'Caută după nume/email/companie' : 'Search by name/email/company'}" value="${appState.ui.clientSearch}" /></div>${filteredClients.length ? filteredClients.map(client => `<div class="client-card space-bottom"><div class="flex" style="justify-content:space-between; align-items:flex-start;"><div><h4>${client.name}</h4><div class="small muted">${client.company || '-'}</div></div><button class="danger-btn" onclick="deleteClient('${client.id}')">${t('common.delete')}</button></div><div class="small space-top">${client.email || '-'} • ${client.phone || '-'}</div><div class="small space-top"><strong>${client.service || '-'}</strong></div><div class="small muted space-top">${client.notes || '-'}</div></div>`).join('') : `<div class="empty-state">${t('clients.empty')}</div>`}</div>
         </div>`;
-      document.getElementById('clientForm').onsubmit = (e) => { e.preventDefault(); const fd = new FormData(e.target); appState.clients.unshift({ id: crypto.randomUUID(), name: fd.get('name'), company: fd.get('company'), phone: fd.get('phone'), email: fd.get('email'), service: fd.get('service'), notes: fd.get('notes') }); saveState(); renderAll(); };
+      document.getElementById('clientSearch').oninput = (e) => { appState.ui.clientSearch = e.target.value; renderClients(); };
+      document.getElementById('clientForm').onsubmit = (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const payload = { id: crypto.randomUUID(), name: fd.get('name'), company: fd.get('company'), phone: fd.get('phone'), email: fd.get('email'), service: fd.get('service'), notes: fd.get('notes') };
+        const errors = validateClient(payload);
+        if (errors.length) return alert(errors.join('\n'));
+        appState.clients.unshift(payload); saveState(); renderAll();
+      };
     }
     function renderTasks() {
       const section = document.getElementById('tasksSection');
       const clientOptions = appState.clients.map(client => `<option value="${client.id}">${client.name}</option>`).join('');
-      const rows = appState.tasks.map(task => `<tr><td>${task.title}</td><td>${getClientName(task.clientId)}</td><td>${formatDate(task.startDate)} → ${formatDate(task.endDate)}</td><td>${formatDate(task.dueDate)}</td><td><span class="status ${getStatusClass(task.status)}">${t(`tasks.statuses.${task.status}`)}</span></td><td>${t(`tasks.priorities.${task.priority}`)}</td><td>${scoreTask(task)}</td><td><button class="danger-btn" onclick="deleteTask('${task.id}')">${t('common.delete')}</button></td></tr>`).join('');
+      const searched = appState.tasks.filter(task => {
+        const q = appState.ui.taskSearch.trim().toLowerCase();
+        const matchesQ = !q || [task.title, task.details, getClientName(task.clientId)].join(' ').toLowerCase().includes(q);
+        const matchesStatus = appState.ui.taskStatusFilter === 'all' || task.status === appState.ui.taskStatusFilter;
+        const matchesPriority = appState.ui.taskPriorityFilter === 'all' || task.priority === appState.ui.taskPriorityFilter;
+        return matchesQ && matchesStatus && matchesPriority;
+      });
+      const sorted = [...searched].sort((a,b)=> appState.ui.taskSort === 'dueAsc' ? String(a.dueDate).localeCompare(String(b.dueDate)) : String(b.dueDate).localeCompare(String(a.dueDate)));
+      const rows = sorted.map(task => `<tr><td><input type="checkbox" class="task-bulk" value="${task.id}" /></td><td>${task.title}</td><td>${getClientName(task.clientId)}</td><td>${formatDate(task.startDate)} → ${formatDate(task.endDate)}</td><td>${formatDate(task.dueDate)}</td><td><span class="status ${getStatusClass(task.status)}">${t(`tasks.statuses.${task.status}`)}</span></td><td>${t(`tasks.priorities.${task.priority}`)}</td><td>${scoreTask(task)}</td><td><button class="danger-btn" onclick="deleteTask('${task.id}')">${t('common.delete')}</button></td></tr>`).join('');
       section.innerHTML = `
         <div class="grid grid-2">
           <div class="card"><h3>${t('tasks.addTitle')}</h3><form id="taskForm"><div class="field"><label>${t('tasks.taskName')}</label><input name="title" required /></div><div class="form-grid"><div class="field"><label>${t('tasks.client')}</label><select name="clientId">${clientOptions || '<option value="">-</option>'}</select></div><div class="field"><label>${t('tasks.status')}</label><select name="status"><option value="pending">${t('tasks.statuses.pending')}</option><option value="onhold">${t('tasks.statuses.onhold')}</option><option value="finished">${t('tasks.statuses.finished')}</option></select></div><div class="field"><label>${t('tasks.start')}</label><input name="startDate" type="date" /></div><div class="field"><label>${t('tasks.end')}</label><input name="endDate" type="date" /></div><div class="field"><label>${t('tasks.due')}</label><input name="dueDate" type="date" /></div><div class="field"><label>${t('tasks.priority')}</label><select name="priority"><option value="low">${t('tasks.priorities.low')}</option><option value="medium">${t('tasks.priorities.medium')}</option><option value="high">${t('tasks.priorities.high')}</option></select></div></div><div class="field"><label>${t('tasks.details')}</label><textarea name="details"></textarea></div><button class="primary-btn" type="submit">${t('tasks.addBtn')}</button></form></div>
-          <div class="card"><h3>${t('tasks.tableTitle')}</h3>${appState.tasks.length ? `<div class="table-wrap"><table><thead><tr><th>${t('tasks.taskName')}</th><th>${t('tasks.client')}</th><th>${t('common.interval')}</th><th>${t('tasks.due')}</th><th>${t('tasks.status')}</th><th>${t('tasks.priority')}</th><th>${t('common.priorityScore')}</th><th>${t('common.delete')}</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="empty-state">${t('tasks.empty')}</div>`}</div>
+          <div class="card"><h3>${t('tasks.tableTitle')}</h3><div class="form-grid"><div class="field"><input id="taskSearch" placeholder="${appState.language === 'ro' ? 'Caută task/client' : 'Search task/client'}" value="${appState.ui.taskSearch}" /></div><div class="field"><select id="taskSort"><option value="dueAsc" ${appState.ui.taskSort==='dueAsc'?'selected':''}>${appState.language==='ro'?'Deadline asc':'Deadline asc'}</option><option value="dueDesc" ${appState.ui.taskSort==='dueDesc'?'selected':''}>${appState.language==='ro'?'Deadline desc':'Deadline desc'}</option></select></div><div class="field"><select id="taskStatusFilter"><option value="all">${appState.language==='ro'?'Toate statusurile':'All statuses'}</option><option value="pending">${t('tasks.statuses.pending')}</option><option value="onhold">${t('tasks.statuses.onhold')}</option><option value="finished">${t('tasks.statuses.finished')}</option></select></div><div class="field"><select id="taskPriorityFilter"><option value="all">${appState.language==='ro'?'Toate prioritățile':'All priorities'}</option><option value="low">${t('tasks.priorities.low')}</option><option value="medium">${t('tasks.priorities.medium')}</option><option value="high">${t('tasks.priorities.high')}</option></select></div></div>${sorted.length ? `<div class="flex space-bottom"><button class="ghost-btn" id="bulkMarkFinished">${appState.language==='ro'?'Bulk: marchează finalizat':'Bulk: mark finished'}</button></div><div class="table-wrap"><table><thead><tr><th>✓</th><th>${t('tasks.taskName')}</th><th>${t('tasks.client')}</th><th>${t('common.interval')}</th><th>${t('tasks.due')}</th><th>${t('tasks.status')}</th><th>${t('tasks.priority')}</th><th>${t('common.priorityScore')}</th><th>${t('common.delete')}</th></tr></thead><tbody>${rows}</tbody></table></div>` : `<div class="empty-state">${t('tasks.empty')}</div>`}</div>
         </div>`;
-      document.getElementById('taskForm').onsubmit = (e) => { e.preventDefault(); const fd = new FormData(e.target); appState.tasks.unshift({ id: crypto.randomUUID(), title: fd.get('title'), clientId: fd.get('clientId'), startDate: fd.get('startDate'), endDate: fd.get('endDate'), dueDate: fd.get('dueDate'), status: fd.get('status'), priority: fd.get('priority'), details: fd.get('details') }); saveState(); renderAll(); };
+      const bindSelect = (id,key) => { const el=document.getElementById(id); if(!el) return; if(el.tagName==='SELECT') el.value=appState.ui[key]; el.oninput=(e)=>{appState.ui[key]=e.target.value; renderTasks();}; };
+      bindSelect('taskSearch','taskSearch'); bindSelect('taskSort','taskSort'); bindSelect('taskStatusFilter','taskStatusFilter'); bindSelect('taskPriorityFilter','taskPriorityFilter');
+      const bulkBtn = document.getElementById('bulkMarkFinished');
+      if (bulkBtn) bulkBtn.onclick = () => { const ids = [...document.querySelectorAll('.task-bulk:checked')].map(el => el.value); if (!ids.length) return; appState.tasks = appState.tasks.map(task => ids.includes(task.id) ? { ...task, status: 'finished' } : task); saveState(); renderTasks(); };
+      document.getElementById('taskForm').onsubmit = (e) => { e.preventDefault(); const fd = new FormData(e.target); const payload = { id: crypto.randomUUID(), title: fd.get('title'), clientId: fd.get('clientId'), startDate: fd.get('startDate'), endDate: fd.get('endDate'), dueDate: fd.get('dueDate'), status: fd.get('status'), priority: fd.get('priority'), details: fd.get('details') }; const errors = validateTask(payload); if (errors.length) return alert(errors.join('\n')); appState.tasks.unshift(payload); saveState(); renderAll(); };
     }
     function renderCalendar() {
       const section = document.getElementById('calendarSection');
@@ -476,8 +529,12 @@
     function renderInvoices() {
       const section = document.getElementById('invoiceSection');
       const clientOptions = appState.clients.map(client => `<option value="${client.id}">${client.name}</option>`).join('');
-      section.innerHTML = `<div class="grid grid-2"><div class="card"><h3>${t('invoice.create')}</h3><form id="invoiceForm"><div class="form-grid"><div class="field"><label>${t('invoice.number')}</label><input name="number" required value="INV-${new Date().getFullYear()}-${String(appState.invoices.length+1).padStart(3,'0')}" /></div><div class="field"><label>${t('tasks.client')}</label><select name="clientId">${clientOptions}</select></div><div class="field"><label>${t('invoice.issue')}</label><input name="issueDate" type="date" required /></div><div class="field"><label>${t('invoice.due')}</label><input name="dueDate" type="date" required /></div><div class="field"><label>${t('invoice.amount')}</label><input name="amount" type="number" step="0.01" required /></div><div class="field"><label>${t('invoice.status')}</label><select name="status"><option value="unpaid">Unpaid</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select></div></div><div class="field"><label>${t('time.description')}</label><textarea name="description"></textarea></div><button class="primary-btn" type="submit">${t('common.save')}</button></form></div><div class="card"><h3>${t('invoice.list')}</h3>${appState.invoices.length ? appState.invoices.map(inv => `<div class="invoice-preview space-bottom"><div class="flex" style="justify-content:space-between;align-items:flex-start"><div><h4>${inv.number}</h4><div class="small muted">${getClientName(inv.clientId)} • ${formatDate(inv.issueDate)} → ${formatDate(inv.dueDate)}</div></div><div class="flex"><span class="status ${inv.status}">${inv.status}</span><button class="ghost-btn" onclick="openInvoice('${inv.id}')">Preview</button><button class="success-btn" onclick="exportInvoicePdf('${inv.id}')">${t('invoice.exportPdf')}</button><button class="danger-btn" onclick="deleteInvoice('${inv.id}')">${t('common.delete')}</button></div></div><div class="small space-top">${inv.amount}</div></div>`).join('') : `<div class="empty-state">${t('common.empty')}</div>`}<div id="invoicePreviewMount" class="space-top"></div></div></div>`;
-      document.getElementById('invoiceForm').onsubmit = (e) => { e.preventDefault(); const fd = new FormData(e.target); appState.invoices.unshift({ id: crypto.randomUUID(), number: fd.get('number'), clientId: fd.get('clientId'), issueDate: fd.get('issueDate'), dueDate: fd.get('dueDate'), amount: fd.get('amount'), status: fd.get('status'), items: [{ description: fd.get('description') || 'Service', qty: 1, price: Number(fd.get('amount')) }] }); saveState(); renderAll(); };
+      section.innerHTML = `<div class="grid grid-2"><div class="card"><h3>${t('invoice.create')}</h3><form id="invoiceForm"><div class="form-grid"><div class="field"><label>${t('invoice.number')}</label><input name="number" required value="INV-${new Date().getFullYear()}-${String(appState.invoices.length+1).padStart(3,'0')}" /></div><div class="field"><label>${t('tasks.client')}</label><select name="clientId">${clientOptions}</select></div><div class="field"><label>${t('invoice.issue')}</label><input name="issueDate" type="date" required /></div><div class="field"><label>${t('invoice.due')}</label><input name="dueDate" type="date" required /></div><div class="field"><label>${t('invoice.amount')}</label><input name="amount" type="number" step="0.01" required /></div><div class="field"><label>${t('invoice.status')}</label><select name="status"><option value="unpaid">Unpaid</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select></div></div><div class="field"><label>${t('time.description')}</label><textarea name="description"></textarea></div><button class="primary-btn" type="submit">${t('common.save')}</button></form></div><div class="card"><h3>${t('invoice.list')}</h3>${appState.invoices.length ? `<div class="flex space-bottom"><select id="invoiceBulkStatus" class="pill"><option value="unpaid">Unpaid</option><option value="paid">Paid</option><option value="overdue">Overdue</option></select><button class="ghost-btn" id="invoiceBulkUpdate">${appState.language==='ro'?'Bulk update status':'Bulk update status'}</button></div>` : ''}${appState.invoices.length ? appState.invoices.map(inv => `<div class="invoice-preview space-bottom"><div class="flex" style="justify-content:space-between;align-items:flex-start"><div><h4><input type="checkbox" class="invoice-bulk" value="${inv.id}" /> ${inv.number}</h4><div class="small muted">${getClientName(inv.clientId)} • ${formatDate(inv.issueDate)} → ${formatDate(inv.dueDate)}</div></div><div class="flex"><span class="status ${inv.status}">${inv.status}</span><button class="ghost-btn" onclick="openInvoice('${inv.id}')">Preview</button><button class="success-btn" onclick="exportInvoicePdf('${inv.id}')">${t('invoice.exportPdf')}</button><button class="danger-btn" onclick="deleteInvoice('${inv.id}')">${t('common.delete')}</button></div></div><div class="small space-top">${inv.amount}</div></div>`).join('') : `<div class="empty-state">${t('common.empty')}</div>`}<div id="invoicePreviewMount" class="space-top"></div></div></div>`;
+      const bulkStatus = document.getElementById('invoiceBulkStatus'); if (bulkStatus) bulkStatus.value = appState.ui.invoiceBulkStatus;
+      if (bulkStatus) bulkStatus.onchange = (e) => { appState.ui.invoiceBulkStatus = e.target.value; };
+      const bulkBtn = document.getElementById('invoiceBulkUpdate');
+      if (bulkBtn) bulkBtn.onclick = () => { const ids = [...document.querySelectorAll('.invoice-bulk:checked')].map(el => el.value); if (!ids.length) return; appState.invoices = appState.invoices.map(inv => ids.includes(inv.id) ? { ...inv, status: appState.ui.invoiceBulkStatus } : inv); saveState(); renderInvoices(); };
+      document.getElementById('invoiceForm').onsubmit = (e) => { e.preventDefault(); const fd = new FormData(e.target); const payload = { id: crypto.randomUUID(), number: fd.get('number'), clientId: fd.get('clientId'), issueDate: fd.get('issueDate'), dueDate: fd.get('dueDate'), amount: fd.get('amount'), status: fd.get('status'), items: [{ description: fd.get('description') || 'Service', qty: 1, price: Number(fd.get('amount')) }] }; const errors = validateInvoice(payload); if (errors.length) return alert(errors.join('\n')); appState.invoices.unshift(payload); saveState(); renderAll(); };
     }
     function invoiceHTML(invoice) {
       const client = appState.clients.find(c => c.id === invoice.clientId);

@@ -41,6 +41,35 @@ The goal is simple: **less chaos, more clarity, faster execution**.
 
 ---
 
+## 🧪 Product Reality Check (MVP Demo)
+
+This repository currently ships a **frontend MVP demo / prototype** built in a single-page browser app.
+
+### ✅ Implemented now
+- Core dashboard navigation and module views
+- Local client/task/reminder/invoice management
+- Local time tracking and service templates
+- Bilingual RO/EN UI switch
+- Browser persistence via LocalStorage
+
+### 🧩 Simulated / mocked in current demo
+- Reminder automations (stored locally as drafts)
+- Client portal links (preview simulation)
+- Invoice PDF export (print-ready browser flow)
+- Content studio generation (local templates, no AI backend)
+
+### 🗺️ Planned next
+- Authentication
+- Backend APIs
+- Cloud database
+- Real notifications
+- Public secure client portal
+- Team roles and permissions
+
+> ⚠️ Demo-only note: this version is not intended for storing sensitive production client data.
+
+---
+
 ## 🌐 Live Demo
 
 👉 **Try it here:**  
